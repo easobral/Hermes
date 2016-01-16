@@ -19,7 +19,6 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
  */
 public class MapActivityFragment extends Fragment {
 
-
     private MyLocationNewOverlay mLocationOverlay;
     private CompassOverlay mCompassOverlay;
 
