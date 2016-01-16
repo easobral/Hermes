@@ -1,7 +1,7 @@
 package edu.nav.hermes.math.algorithms;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by eduardo on 15/01/16.
@@ -9,40 +9,19 @@ import java.util.Set;
  */
 public class Graph<T> {
 
-    Set<Node<T>> nodeSet;
+    HashMap<T, List<Graph.Edge>> nodes;
 
     public Graph() {
-
+        nodes = new HashMap<>();
     }
 
-    public class Node<E> {
-        private List<Edge<E>> edges;
-        private E extra;
-
-        public E getExtra() {
-            return extra;
-        }
-
-        public void setExtra(E extra) {
-            this.extra = extra;
-        }
-
-        public List<Edge<E>> getEdges() {
-            return edges;
-        }
-
-        public void setEdges(List<Edge<E>> edges) {
-            this.edges = edges;
-        }
-
-        public void addEdge(Edge<E> edge) {
-            edges.add(edge);
-        }
+    public List<Graph<T>.Edge> getEdges(T extra) {
+        return nodes.get(extra);
     }
 
-    public class Edge<E> {
+    public class Edge {
         float cost;
-        Node<E> head;
+        T head;
 
         public float getCost() {
             return cost;
@@ -52,15 +31,14 @@ public class Graph<T> {
             this.cost = cost;
         }
 
-        public Node<E> getHead() {
+        public T getHead() {
             return head;
         }
 
-        public void setHead(Node<E> head) {
+        public void setHead(T head) {
             this.head = head;
         }
 
     }
-
 
 }
