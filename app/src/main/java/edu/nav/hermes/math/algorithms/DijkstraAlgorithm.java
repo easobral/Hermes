@@ -1,9 +1,7 @@
 package edu.nav.hermes.math.algorithms;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
@@ -45,13 +43,13 @@ public class DijkstraAlgorithm<T> {
         info_set.put(start, nodeInfo);
     }
 
-    public Answer start() {
+    public Answer<T> start() {
 
         return execute_algorithm();
     }
 
-    private Answer returnRoute() {
-        Answer answer = new Answer();
+    private Answer<T> returnRoute() {
+        Answer<T> answer = new Answer<>();
         NodeInfo end_info = info_set.get(end);
         answer.cost = end_info.cost;
         T val = end;
@@ -64,7 +62,7 @@ public class DijkstraAlgorithm<T> {
         return answer;
     }
 
-    private Answer execute_algorithm() {
+    private Answer<T> execute_algorithm() {
         queue.add(start);
 
         while (!queue.isEmpty()) {
@@ -119,10 +117,4 @@ public class DijkstraAlgorithm<T> {
             cost = 0;
         }
     }
-
-    public class Answer {
-        float cost;
-        List<T> path = new ArrayList<>();
-    }
-
 }

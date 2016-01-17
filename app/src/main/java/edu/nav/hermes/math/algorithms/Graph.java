@@ -6,7 +6,10 @@ import java.util.List;
 /**
  * Created by eduardo on 15/01/16.
  * A graph to be used by the algorithms
+ * Map data for RIo de Janeiro City extracted at 16/01/16 at 22:35
+ * from https://mapzen.com/data/metro-extracts
  */
+
 public class Graph<T> {
 
     HashMap<T, List<Graph.Edge>> nodes;
