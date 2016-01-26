@@ -13,12 +13,17 @@ import java.util.List;
 public class Graph<T> {
 
     HashMap<T, List<Graph.Edge>> nodes;
+    Loader loader;
 
-    public Graph() {
+    public Graph(Loader loader) {
         nodes = new HashMap<>();
+        this.loader = loader;
     }
 
     public List<Graph<T>.Edge> getEdges(T extra) {
+        if (nodes.containsKey(extra))
+            return nodes.get(extra);
+        nodes = (HashMap<T, List<Graph.Edge>>) loader.load(extra, nodes);
         return nodes.get(extra);
     }
 
