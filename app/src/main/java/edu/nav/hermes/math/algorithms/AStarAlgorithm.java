@@ -10,26 +10,25 @@ import java.util.PriorityQueue;
  * A class that performs the AStarAlgorithm
  */
 public class AStarAlgorithm<T> {
+    private Graph graph;
+    private Long start;
+    private Long end;
+    private LoopListener loop;
+    private PriorityQueue<Long> queue;
+    private Map<Long, NodeInfo> info_set;
+    private Heuristic heuristic;
 
-    private Graph<T> graph;
-    private T start;
-    private T end;
-    private LoopListener<T> loop;
-    private PriorityQueue<T> queue;
-    private Map<T, NodeInfo> info_set;
-    private Heuristic<T> heuristic;
 
-
-    public AStarAlgorithm(Graph<T> graph, T start, T end, LoopListener<T> loopListener, Heuristic<T> heuristic) {
+    public AStarAlgorithm(Graph graph, Long start, Long end, LoopListener loopListener, Heuristic heuristic) {
         this.graph = graph;
         this.start = start;
         this.end = end;
         this.loop = loopListener;
         this.heuristic = heuristic;
         info_set = new HashMap<>();
-        this.queue = new PriorityQueue<>(1000, new Comparator<T>() {
+        this.queue = new PriorityQueue<>(1000, new Comparator<Long>() {
             @Override
-            public int compare(T lhs, T rhs) {
+            public int compare(Long lhs, Long rhs) {
                 float lVal = info_set.get(lhs).heuristic;
                 float rVal = info_set.get(rhs).heuristic;
                 if (lVal < rVal)
@@ -45,31 +44,31 @@ public class AStarAlgorithm<T> {
         info_set.put(start, nodeInfo);
     }
 
-    public Answer<T> start() {
+    public Answer start() {
 
         return execute_algorithm();
     }
 
-    private Answer<T> returnRoute() {
-        Answer<T> answer = new Answer<>();
+    private Answer returnRoute() {
+        Answer answer = new Answer();
         NodeInfo end_info = info_set.get(end);
         answer.cost = end_info.cost;
-        T val = end;
+        Long val = end;
 
         while (null != end_info.father) {
-            answer.path.add(val);
+            answer.path.add(graph.getData(val));
             val = end_info.father;
             end_info = info_set.get(val);
         }
         return answer;
     }
 
-    private Answer<T> execute_algorithm() {
+    private Answer execute_algorithm() {
         queue.add(start);
 
         while (!queue.isEmpty()) {
-            T current = queue.poll();
-            loop.onLoop(current);
+            Long current = queue.poll();
+            loop.onLoop(graph.getNode(current));
             NodeInfo infoCurrent = info_set.get(current);
             infoCurrent.closed = true;
 
@@ -77,15 +76,15 @@ public class AStarAlgorithm<T> {
                 break;
             }
 
-            for (Graph<T>.Edge edge : graph.getEdges(current)) {
-                T node = edge.getHead();
+            for (Graph.Edge edge : graph.getEdges(current)) {
+                Long node = edge.getHead();
                 NodeInfo infoEdge = info_set.get(node);
                 if (null == infoEdge) infoEdge = new NodeInfo();
 
                 if (infoEdge.closed) continue;
 
-                float newCost = infoCurrent.cost + edge.getCost();
-                float newHeuristic = newCost + heuristic.cost(node, end);
+                float newCost = infoCurrent.cost + graph.getCost(current, node);
+                float newHeuristic = newCost + heuristic.cost(graph, node, end);
 
                 if (!infoEdge.open) {
                     //edge has never been visited
@@ -109,14 +108,14 @@ public class AStarAlgorithm<T> {
         return returnRoute();
     }
 
-    public interface Heuristic<T> {
-        float cost(T start, T end);
+    public interface Heuristic {
+        float cost(Graph graph, Long start, Long end);
     }
 
     private class NodeInfo {
         boolean open;
         boolean closed;
-        T father;
+        Long father;
         float cost;
         float heuristic;
 
