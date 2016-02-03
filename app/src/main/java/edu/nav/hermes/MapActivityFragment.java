@@ -17,7 +17,6 @@ import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.tileprovider.util.SimpleRegisterReceiver;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
@@ -29,7 +28,6 @@ import java.io.File;
 public class MapActivityFragment extends Fragment {
 
     private MyLocationNewOverlay mLocationOverlay;
-    private CompassOverlay mCompassOverlay;
 
     public MapActivityFragment() {
     }
