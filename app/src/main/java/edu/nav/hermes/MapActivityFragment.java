@@ -37,6 +37,13 @@ public class MapActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_map, container, false);
         MapView mapView = (MapView) rootView.findViewById(R.id.map);
+
+        setupMapView(mapView);
+
+        return rootView;
+    }
+
+    private void setupMapView(MapView mapView) {
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
 
@@ -44,6 +51,8 @@ public class MapActivityFragment extends Fragment {
 
         this.mLocationOverlay = new MyLocationNewOverlay(getContext(), new GpsMyLocationProvider(getContext()), mapView);
         mapView.getOverlays().add(this.mLocationOverlay);
+        mapView.getOverlays().add(new PathFinderOverlay(getContext()));
+
 
         final IRegisterReceiver registerReceiver = new SimpleRegisterReceiver(getContext());
         final ITileSource tileSource = new XYTileSource("MapQuest", 10, 16, 256, ".jpg", new String[]{});
@@ -67,8 +76,6 @@ public class MapActivityFragment extends Fragment {
         GeoPoint startPoint = new GeoPoint(-22.905727, -43.289553);
         mapController.setCenter(startPoint);
 
-
-        return rootView;
     }
 
 

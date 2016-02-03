@@ -142,8 +142,37 @@ public class Graph {
         return new Node(current, getEntry(current).point);
     }
 
-    public Node getClosestNode(GeoPoint geopoint) {
-        return null;
+    public Long getClosestNode(GeoPoint geopoint) {
+        String file = getFileFromGeopoint(geopoint);
+        InputStream is;
+        BufferedReader br;
+        Long closest = null;
+        float distance = Float.POSITIVE_INFINITY;
+
+        try {
+            is = assets.open("id_database/" + file, AssetManager.ACCESS_STREAMING);
+            br = new BufferedReader(new InputStreamReader(is));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(" ");
+                Long p_id = Long.parseLong(parts[0]);
+
+                float lat = Float.parseFloat(parts[1]);
+                float lon = Float.parseFloat(parts[2]);
+                GeoPoint p = new GeoPoint(lat, lon);
+
+                float p_distance = p.distanceTo(geopoint);
+                if (p_distance < distance) {
+                    distance = p_distance;
+                    closest = p_id;
+                }
+
+            }
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return closest;
     }
 
 

@@ -1,13 +1,24 @@
 package edu.nav.hermes.tasks;
 
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.res.AssetManager;
 import android.os.AsyncTask;
 
 /**
  * Created by eduardo on 02/02/16.
  * The database
  */
-public class PathFinderTask extends AsyncTask<Void, Void, Void> {
+public class PathFinderTask extends AsyncTask<Void, Integer, Void> {
 
+    private ProgressDialog progressDialog;
+    private AssetManager assetManager;
+    private Context context;
+
+    public PathFinderTask(Context ctx) {
+        assetManager = ctx.getAssets();
+        context = ctx;
+    }
 
     /**
      * Runs on the UI thread before {@link #doInBackground}.
@@ -17,7 +28,14 @@ public class PathFinderTask extends AsyncTask<Void, Void, Void> {
      */
     @Override
     protected void onPreExecute() {
-        super.onPreExecute();
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setTitle("Procurando Rota");
+        progressDialog.setMessage("Por favor, espere um momento");
+        progressDialog.setCancelable(false);
+        progressDialog.setMax(100000);
+        progressDialog.show();
+
     }
 
     /**
@@ -33,8 +51,9 @@ public class PathFinderTask extends AsyncTask<Void, Void, Void> {
      */
     @Override
     protected void onPostExecute(Void aVoid) {
-        super.onPostExecute(aVoid);
+        progressDialog.dismiss();
     }
+
 
     /**
      * Runs on the UI thread after {@link #publishProgress} is invoked.
@@ -45,8 +64,9 @@ public class PathFinderTask extends AsyncTask<Void, Void, Void> {
      * @see #doInBackground
      */
     @Override
-    protected void onProgressUpdate(Void... values) {
-        super.onProgressUpdate(values);
+    protected void onProgressUpdate(Integer... values) {
+        Integer i = values[0];
+        progressDialog.setProgress(i);
     }
 
     /**
@@ -66,10 +86,14 @@ public class PathFinderTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         //TODO
+
+
+        for (int i = 0; i < 100000; i++) {
+            publishProgress(i);
+        }
+
         return null;
     }
 
-    public class Params {
-    }
 
 }
