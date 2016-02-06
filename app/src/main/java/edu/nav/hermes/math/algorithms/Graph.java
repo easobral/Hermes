@@ -21,18 +21,24 @@ import java.util.List;
 
 public class Graph {
 
-    static final double LAT_STEP = 0.02;
-    static final double LON_STEP = 0.01;
+    static final double LAT_STEP = 0.02 * 1E6;
+    static final double LON_STEP = 0.01 * 1E6;
+
+    static final int ID = 0;
+    static final int LAT = 1;
+    static final int LON = 2;
+
     AssetManager assets;
 
     HashMap<Long, Entry> cache;
 
     public Graph(AssetManager assets) {
         this.assets = assets;
+        cache = new HashMap<>(1000);
     }
 
     public void updateCache(GeoPoint point) {
-        cache = new HashMap<>();
+        cache.clear();
         String file = getFileFromGeopoint(point);
 
         InputStream is;
@@ -43,9 +49,9 @@ public class Graph {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(" ");
-                Long id = Long.parseLong(parts[0]);
-                float lat = Float.parseFloat(parts[1]);
-                float lon = Float.parseFloat(parts[2]);
+                Long id = Long.parseLong(parts[ID]);
+                int lat = Integer.parseInt(parts[LAT]);
+                int lon = Integer.parseInt(parts[LON]);
                 GeoPoint p = new GeoPoint(lat, lon);
                 ArrayList<Edge> ed = new ArrayList<>(2);
                 for (int i = 3; i < parts.length; i++) {
@@ -63,20 +69,6 @@ public class Graph {
 
     }
 
-    private String getFileFromGeopoint(GeoPoint point) {
-        double x = Math.floor(point.getLatitude() / LAT_STEP);
-        double y = Math.floor(point.getLongitude() / LON_STEP);
-        return "" + x + "_" + y;
-    }
-
-    /**
-     * @param id the node ID
-     * @return the name where the file where ID can be found.
-     */
-    private String getFileFromID(Long id) {
-        return String.valueOf(Math.floor(id / 100));
-    }
-
     private GeoPoint getGeoPointFromID(Long id) {
         String file = getFileFromID(id);
         InputStream is;
@@ -88,12 +80,12 @@ public class Graph {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(" ");
-                Long p_id = Long.parseLong(parts[0]);
+                Long p_id = Long.parseLong(parts[ID]);
 
                 if (!id.equals(p_id)) continue;
 
-                float lat = Float.parseFloat(parts[1]);
-                float lon = Float.parseFloat(parts[2]);
+                int lat = Integer.parseInt(parts[LAT]);
+                int lon = Integer.parseInt(parts[LON]);
                 return_point = new GeoPoint(lat, lon);
                 break;
             }
@@ -104,6 +96,56 @@ public class Graph {
         return return_point;
     }
 
+    public Long getClosestNode(GeoPoint geopoint) {
+        String file = getFileFromGeopoint(geopoint);
+        InputStream is;
+        BufferedReader br;
+        Long closest = null;
+        double distance = Double.POSITIVE_INFINITY;
+
+        try {
+            is = assets.open("database/" + file, AssetManager.ACCESS_STREAMING);
+            br = new BufferedReader(new InputStreamReader(is));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(" ");
+                Long p_id = Long.parseLong(parts[ID]);
+
+                int lat = Integer.parseInt(parts[LAT]);
+                int lon = Integer.parseInt(parts[LON]);
+                GeoPoint p = new GeoPoint(lat, lon);
+
+                double p_distance = p.distanceTo(geopoint);
+                if (p_distance < distance) {
+                    distance = p_distance;
+                    closest = p_id;
+                }
+
+            }
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return closest;
+    }
+
+
+    private String getFileFromGeopoint(GeoPoint point) {
+        Integer x = (int) Math.floor(point.getLatitudeE6() / LAT_STEP);
+        Integer y = (int) Math.floor(point.getLongitudeE6() / LON_STEP);
+        return "" + x + "_" + y;
+    }
+
+    /**
+     * @param id the node ID
+     * @return the name where the file where ID can be found.
+     */
+    private String getFileFromID(Long id) {
+        int hash = (int) Math.floor(id / 100);
+        return String.valueOf(hash);
+    }
+
+
     /**
      * @param id the node ID
      * @return the entry in the cache or null if it is not on database
@@ -113,7 +155,7 @@ public class Graph {
         if (null == entry) {
             GeoPoint point = getGeoPointFromID(id);
             updateCache(point);
-            entry = cache.get(id);
+            return getEntry(id);
         }
         return entry;
     }
@@ -132,7 +174,7 @@ public class Graph {
         return getEntry(id).point;
     }
 
-    public float getCost(Long current, Long node) {
+    public double getCost(Long current, Long node) {
         GeoPoint p1 = getEntry(current).point;
         GeoPoint p2 = getEntry(node).point;
         return p1.distanceTo(p2);
@@ -140,39 +182,6 @@ public class Graph {
 
     public Node getNode(Long current) {
         return new Node(current, getEntry(current).point);
-    }
-
-    public Long getClosestNode(GeoPoint geopoint) {
-        String file = getFileFromGeopoint(geopoint);
-        InputStream is;
-        BufferedReader br;
-        Long closest = null;
-        float distance = Float.POSITIVE_INFINITY;
-
-        try {
-            is = assets.open("id_database/" + file, AssetManager.ACCESS_STREAMING);
-            br = new BufferedReader(new InputStreamReader(is));
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(" ");
-                Long p_id = Long.parseLong(parts[0]);
-
-                float lat = Float.parseFloat(parts[1]);
-                float lon = Float.parseFloat(parts[2]);
-                GeoPoint p = new GeoPoint(lat, lon);
-
-                float p_distance = p.distanceTo(geopoint);
-                if (p_distance < distance) {
-                    distance = p_distance;
-                    closest = p_id;
-                }
-
-            }
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return closest;
     }
 
 

@@ -10,7 +10,7 @@ import java.util.PriorityQueue;
  * Created by eduardo on 16/01/16.
  * A class that encapsulates dijkstra Algorithm
  */
-public class DijkstraAlgorithm<T> {
+public class DijkstraAlgorithm {
 
     private Graph graph;
     private Long start;
@@ -29,8 +29,8 @@ public class DijkstraAlgorithm<T> {
         this.queue = new PriorityQueue<>(1000, new Comparator<Long>() {
             @Override
             public int compare(Long lhs, Long rhs) {
-                float lVal = info_set.get(lhs).cost;
-                float rVal = info_set.get(rhs).cost;
+                double lVal = info_set.get(lhs).cost;
+                double rVal = info_set.get(rhs).cost;
                 if (lVal < rVal)
                     return -1;
                 if (lVal > rVal)
@@ -84,7 +84,7 @@ public class DijkstraAlgorithm<T> {
 
                 if (infoEdge.closed) continue;
 
-                float newCost = infoCurrent.cost + graph.getCost(current, node);
+                double newCost = infoCurrent.cost + graph.getCost(current, node);
 
                 if (!infoEdge.open) {
                     //edge has never been visited
@@ -106,11 +106,11 @@ public class DijkstraAlgorithm<T> {
         return returnRoute();
     }
 
-    private class NodeInfo {
+    private static class NodeInfo {
         boolean open;
         boolean closed;
         Long father;
-        float cost;
+        double cost;
 
         public NodeInfo() {
             open = false;

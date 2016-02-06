@@ -9,7 +9,7 @@ import java.util.PriorityQueue;
  * Created by eduardo on 15/01/16.
  * A class that performs the AStarAlgorithm
  */
-public class AStarAlgorithm<T> {
+public class AStarAlgorithm {
     private Graph graph;
     private Long start;
     private Long end;
@@ -29,8 +29,8 @@ public class AStarAlgorithm<T> {
         this.queue = new PriorityQueue<>(1000, new Comparator<Long>() {
             @Override
             public int compare(Long lhs, Long rhs) {
-                float lVal = info_set.get(lhs).heuristic;
-                float rVal = info_set.get(rhs).heuristic;
+                double lVal = info_set.get(lhs).heuristic;
+                double rVal = info_set.get(rhs).heuristic;
                 if (lVal < rVal)
                     return -1;
                 if (lVal > rVal)
@@ -83,8 +83,8 @@ public class AStarAlgorithm<T> {
 
                 if (infoEdge.closed) continue;
 
-                float newCost = infoCurrent.cost + graph.getCost(current, node);
-                float newHeuristic = newCost + heuristic.cost(graph, node, end);
+                double newCost = infoCurrent.cost + graph.getCost(current, node);
+                double newHeuristic = newCost + heuristic.cost(graph, node, end);
 
                 if (!infoEdge.open) {
                     //edge has never been visited
@@ -109,15 +109,15 @@ public class AStarAlgorithm<T> {
     }
 
     public interface Heuristic {
-        float cost(Graph graph, Long start, Long end);
+        double cost(Graph graph, Long start, Long end);
     }
 
-    private class NodeInfo {
+    private static class NodeInfo {
         boolean open;
         boolean closed;
         Long father;
-        float cost;
-        float heuristic;
+        double cost;
+        double heuristic;
 
         public NodeInfo() {
             open = false;

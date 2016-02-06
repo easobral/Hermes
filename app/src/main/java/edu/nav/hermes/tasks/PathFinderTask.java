@@ -2,22 +2,36 @@ package edu.nav.hermes.tasks;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.os.AsyncTask;
+import android.util.Log;
+
+import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.util.GeoPoint;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.nav.hermes.math.algorithms.AStarAlgorithm;
+import edu.nav.hermes.math.algorithms.Answer;
+import edu.nav.hermes.math.algorithms.Graph;
+import edu.nav.hermes.math.algorithms.LoopListener;
 
 /**
  * Created by eduardo on 02/02/16.
  * The database
  */
-public class PathFinderTask extends AsyncTask<Void, Integer, Void> {
+public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, List<IGeoPoint>> {
 
     private ProgressDialog progressDialog;
-    private AssetManager assetManager;
     private Context context;
+    private PathFinderTask.TaskCompletedListener listener;
+    private Params par;
+    private Clock clock;
 
-    public PathFinderTask(Context ctx) {
-        assetManager = ctx.getAssets();
+    public PathFinderTask(Context ctx, PathFinderTask.TaskCompletedListener listener) {
         context = ctx;
+        this.listener = listener;
+        clock = new Clock();
     }
 
     /**
@@ -33,9 +47,7 @@ public class PathFinderTask extends AsyncTask<Void, Integer, Void> {
         progressDialog.setTitle("Procurando Rota");
         progressDialog.setMessage("Por favor, espere um momento");
         progressDialog.setCancelable(false);
-        progressDialog.setMax(100000);
         progressDialog.show();
-
     }
 
     /**
@@ -44,14 +56,15 @@ public class PathFinderTask extends AsyncTask<Void, Integer, Void> {
      * <p>
      * <p>This method won't be invoked if the task was cancelled.</p>
      *
-     * @param aVoid The result of the operation computed by {@link #doInBackground}.
+     * @param path The result of the operation computed by {@link #doInBackground}.
      * @see #onPreExecute
      * @see #doInBackground
      * @see #onCancelled(Object)
      */
     @Override
-    protected void onPostExecute(Void aVoid) {
+    protected void onPostExecute(List<IGeoPoint> path) {
         progressDialog.dismiss();
+        listener.onTaskCompleted(path);
     }
 
 
@@ -84,16 +97,70 @@ public class PathFinderTask extends AsyncTask<Void, Integer, Void> {
      * @see #publishProgress
      */
     @Override
-    protected Void doInBackground(Void... params) {
+    protected List<IGeoPoint> doInBackground(PathFinderTask.Params... params) {
         //TODO
+        par = params[0];
+        Graph graph = new Graph(context.getAssets());
+        ArrayList<IGeoPoint> path = new ArrayList<>();
+        Long p1 = graph.getClosestNode(par.start);
+        Long p2 = graph.getClosestNode(par.end);
+        clock.start();
 
 
-        for (int i = 0; i < 100000; i++) {
-            publishProgress(i);
-        }
+//        DijkstraAlgorithm dijkstraAlgorithm = new DijkstraAlgorithm(graph,p1,p2,new Loop());
+//        Answer answer = dijkstraAlgorithm.start();
 
-        return null;
+        AStarAlgorithm aStarAlgorithm = new AStarAlgorithm(graph, p1, p2, new Loop(), new AStarAlgorithm.Heuristic() {
+            @Override
+            public double cost(Graph graph, Long start, Long end) {
+                return graph.getData(start).distanceTo(graph.getData(end));
+            }
+        });
+        Answer answer = aStarAlgorithm.start();
+
+        Log.d(getClass().getSimpleName(), "" + clock.getTime());
+
+        return answer.path;
     }
 
+    public interface TaskCompletedListener {
+        void onTaskCompleted(List<IGeoPoint> path);
+    }
+
+    public static class Params {
+        public GeoPoint start;
+        public GeoPoint end;
+    }
+
+    private static class Clock {
+        long t_start;
+
+        public void start() {
+            t_start = System.currentTimeMillis();
+        }
+
+        public long getTime() {
+            return System.currentTimeMillis() - t_start;
+        }
+    }
+
+    private class Loop implements LoopListener {
+        int i = 0;
+        float best_distance = Float.POSITIVE_INFINITY;
+
+        @Override
+        public void onLoop(Graph.Node node) {
+            i++;
+            float cur_distance = node.getData().distanceTo(par.end);
+            if (cur_distance < best_distance) {
+                best_distance = cur_distance;
+            }
+            if (10 < i) {
+                float total_distance = par.start.distanceTo(par.end);
+                Integer progress = (int) Math.floor((1 - best_distance / total_distance) * 100);
+                publishProgress(progress);
+            }
+        }
+    }
 
 }

@@ -10,6 +10,6 @@ import java.util.List;
  * Answer of the algorithm
  */
 public class Answer {
-    public float cost = 0;
+    public double cost = 0;
     public List<IGeoPoint> path = new ArrayList<>();
 }
