@@ -99,16 +99,19 @@ public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, Li
     @Override
     protected List<IGeoPoint> doInBackground(PathFinderTask.Params... params) {
         //TODO
+
         par = params[0];
-        Graph graph = new Graph(context.getAssets());
+        Graph graph = new Graph(context.getAssets(), 50);
         ArrayList<IGeoPoint> path = new ArrayList<>();
         Long p1 = graph.getClosestNode(par.start);
         Long p2 = graph.getClosestNode(par.end);
         clock.start();
+        Answer answer;
 
 
 //        DijkstraAlgorithm dijkstraAlgorithm = new DijkstraAlgorithm(graph,p1,p2,new Loop());
-//        Answer answer = dijkstraAlgorithm.start();
+//        answer = dijkstraAlgorithm.start();
+
 
         AStarAlgorithm aStarAlgorithm = new AStarAlgorithm(graph, p1, p2, new Loop(), new AStarAlgorithm.Heuristic() {
             @Override
@@ -116,7 +119,7 @@ public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, Li
                 return graph.getData(start).distanceTo(graph.getData(end));
             }
         });
-        Answer answer = aStarAlgorithm.start();
+        answer = aStarAlgorithm.start();
 
         Log.d(getClass().getSimpleName(), "" + clock.getTime());
 

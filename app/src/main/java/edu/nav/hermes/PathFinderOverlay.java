@@ -60,7 +60,7 @@ public class PathFinderOverlay extends Overlay {
                 second_p = new Point();
         Paint paint = new Paint();
         paint.setColor(Color.BLUE);
-        paint.setStrokeWidth(5.0f);
+        paint.setStrokeWidth(3.0f);
         paint.setStyle(Paint.Style.STROKE);
         paint.setAlpha(128);
         paint.setStrokeCap(Paint.Cap.ROUND);

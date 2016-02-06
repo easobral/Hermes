@@ -30,15 +30,25 @@ public class Graph {
 
     AssetManager assets;
 
-    HashMap<Long, Entry> cache;
+    HashMap<Long, Entry>[] cache;
 
+    @SuppressWarnings("unchecked")
     public Graph(AssetManager assets) {
         this.assets = assets;
-        cache = new HashMap<>(1000);
+        cache = new HashMap[]{new HashMap<>(1000)};
     }
 
-    public void updateCache(GeoPoint point) {
-        cache.clear();
+    @SuppressWarnings("unchecked")
+    public Graph(AssetManager assets, int cache_size) {
+        this.assets = assets;
+        cache = new HashMap[cache_size];
+        for (int i = 0; i < cache_size; i++) {
+            cache[i] = new HashMap<>(1000);
+        }
+    }
+
+    public void updateCache(GeoPoint point, int hash) {
+        cache[hash].clear();
         String file = getFileFromGeopoint(point);
 
         InputStream is;
@@ -60,7 +70,7 @@ public class Graph {
                 Entry e = new Entry();
                 e.edges = ed;
                 e.point = p;
-                cache.put(id, e);
+                cache[hash].put(id, e);
             }
             is.close();
         } catch (IOException e) {
@@ -145,19 +155,26 @@ public class Graph {
         return String.valueOf(hash);
     }
 
+    private int geoHash(GeoPoint point) {
+        int x = (int) Math.floor(point.getLatitudeE6() / LAT_STEP);
+        int y = (int) Math.floor(point.getLongitudeE6() / LON_STEP);
+        return Math.abs(x * 3 + y * 5);
+    }
 
     /**
      * @param id the node ID
      * @return the entry in the cache or null if it is not on database
      */
     private Entry getEntry(Long id) {
-        Entry entry = cache.get(id);
-        if (null == entry) {
-            GeoPoint point = getGeoPointFromID(id);
-            updateCache(point);
-            return getEntry(id);
+        int i = 0;
+        Entry entry;
+        for (; i < cache.length; i++) {
+            entry = cache[i].get(id);
+            if (null != entry) return entry;
         }
-        return entry;
+        GeoPoint point = getGeoPointFromID(id);
+        updateCache(point, geoHash(point) % cache.length);
+        return getEntry(id);
     }
 
 
@@ -185,7 +202,7 @@ public class Graph {
     }
 
 
-    public class Edge {
+    public static class Edge {
         Long head;
 
         Edge(Long id) {
@@ -202,12 +219,7 @@ public class Graph {
 
     }
 
-    private class Entry {
-        GeoPoint point;
-        ArrayList<Edge> edges;
-    }
-
-    public class Node {
+    public static class Node {
 
         private GeoPoint data;
         private Long id;
@@ -240,6 +252,11 @@ public class Graph {
             this.data = data;
         }
 
+    }
+
+    private class Entry {
+        GeoPoint point;
+        ArrayList<Edge> edges;
     }
 
 }
