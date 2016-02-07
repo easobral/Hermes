@@ -3,12 +3,12 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="edu.nav.hermes.SettingsActivity$GeneralPreferenceFragment"
+        android:fragment="edu.nav.hermes.SettingsActivity$AlgorithmPreferenceFragment"
         android:icon="@drawable/ic_info_black_24dp"
-        android:title="@string/pref_header_general" />
+        android:title="@string/pref_header_algorithms" />
 
     <header
-        android:fragment="edu.nav.hermes.SettingsActivity$NotificationPreferenceFragment"
+        android:fragment="edu.nav.hermes.SettingsActivity$PerformancePreferenceFragment"
         android:icon="@drawable/ic_notifications_black_24dp"
         android:title="@string/pref_header_notifications" />
 
