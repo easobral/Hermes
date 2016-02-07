@@ -102,17 +102,19 @@ public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, Li
     @Override
     protected List<IGeoPoint> doInBackground(PathFinderTask.Params... params) {
         //TODO
-
         par = params[0];
-        Graph graph = new Graph(context.getAssets(), 50);
-        ArrayList<IGeoPoint> path = new ArrayList<>();
-        Long p1 = graph.getClosestNode(par.start);
-        Long p2 = graph.getClosestNode(par.end);
         clock.start();
         Answer answer = new Answer();
+        ArrayList<IGeoPoint> path = new ArrayList<>();
 
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        String algo = pref.getString("algoritmo_preferido", "a_star");
+        String algo = pref.getString("pref_algoritmo_algoritmo", "a_star");
+        int cache_size = Integer.parseInt(pref.getString("pref_performance_cache_size", "1"));
+
+        Graph graph = new Graph(context.getAssets(), cache_size);
+        Long p1 = graph.getClosestNode(par.start);
+        Long p2 = graph.getClosestNode(par.end);
+
 
         if (algo.equals("a_star")) {
             AStarAlgorithm aStarAlgorithm = new AStarAlgorithm(graph, p1, p2, new Loop(), new AStarAlgorithm.Heuristic() {
