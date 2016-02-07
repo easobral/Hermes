@@ -2,7 +2,9 @@ package edu.nav.hermes.tasks;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.osmdroid.api.IGeoPoint;
@@ -13,6 +15,7 @@ import java.util.List;
 
 import edu.nav.hermes.math.algorithms.AStarAlgorithm;
 import edu.nav.hermes.math.algorithms.Answer;
+import edu.nav.hermes.math.algorithms.DijkstraAlgorithm;
 import edu.nav.hermes.math.algorithms.Graph;
 import edu.nav.hermes.math.algorithms.LoopListener;
 
@@ -106,20 +109,25 @@ public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, Li
         Long p1 = graph.getClosestNode(par.start);
         Long p2 = graph.getClosestNode(par.end);
         clock.start();
-        Answer answer;
+        Answer answer = new Answer();
+
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        String algo = pref.getString("algoritmo_preferido", "a_star");
+
+        if (algo.equals("a_star")) {
+            AStarAlgorithm aStarAlgorithm = new AStarAlgorithm(graph, p1, p2, new Loop(), new AStarAlgorithm.Heuristic() {
+                @Override
+                public double cost(Graph graph, Long start, Long end) {
+                    return graph.getData(start).distanceTo(graph.getData(end));
+                }
+            });
+            answer = aStarAlgorithm.start();
+        } else if (algo.equals("dijkstra")) {
+            DijkstraAlgorithm dijkstraAlgorithm = new DijkstraAlgorithm(graph, p1, p2, new Loop());
+            answer = dijkstraAlgorithm.start();
+        }
 
 
-//        DijkstraAlgorithm dijkstraAlgorithm = new DijkstraAlgorithm(graph,p1,p2,new Loop());
-//        answer = dijkstraAlgorithm.start();
-
-
-        AStarAlgorithm aStarAlgorithm = new AStarAlgorithm(graph, p1, p2, new Loop(), new AStarAlgorithm.Heuristic() {
-            @Override
-            public double cost(Graph graph, Long start, Long end) {
-                return graph.getData(start).distanceTo(graph.getData(end));
-            }
-        });
-        answer = aStarAlgorithm.start();
 
         Log.d(getClass().getSimpleName(), "" + clock.getTime());
 

@@ -6,18 +6,9 @@
     <!-- Strings related to Settings -->
 
 
-    <!-- Example General settings -->
+    <!-- Algoritms settings -->
     <string name="pref_header_algorithms">Algoritmos</string>
-
-    <string name="pref_title_social_recommendations">Enable social recommendations</string>
-    <string name="pref_description_social_recommendations">Recommendations for people to contact
-        based on your message history
-    </string>
-
-    <string name="pref_title_display_name">Display name</string>
-    <string name="pref_default_display_name">John Smith</string>
-
-    <string name="titulo_algoritmo">Algoritmo a ser usado</string>
+    <string name="titulo_algoritmo">Algoritmo</string>
 
     <string-array name="nomes_algoritmos">
         <item>A*</item>
@@ -25,9 +16,14 @@
     </string-array>
 
     <string-array name="valores_nomes_algoritmos">
-        <item>0</item>
-        <item>1</item>
+        <item>a_star</item>
+        <item>dijkstra</item>
     </string-array>
+
+    <!-- Performance Settings -->
+    <string name="pref_header_performance">Performance</string>
+    <string name="pref_title_cache_size">Tamanho do Cache</string>
+
 
     <!-- Example settings for Data & Sync -->
     <string name="pref_header_data_sync">Data &amp; sync</string>
@@ -52,13 +48,4 @@
 
     <string name="pref_title_system_sync_settings">System sync settings</string>
 
-    <!-- Example settings for Notifications -->
-    <string name="pref_header_notifications">Notifications</string>
-
-    <string name="pref_title_new_message_notifications">New message notifications</string>
-
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
-
-    <string name="pref_title_vibrate">Vibrate</string>
 </resources>
