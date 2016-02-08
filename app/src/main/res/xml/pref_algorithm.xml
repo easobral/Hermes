@@ -30,4 +30,13 @@
         android:positiveButtonText="@null"
         android:title="@string/titulo_algoritmo" />
 
+    <ListPreference
+        android:defaultValue="dist"
+        android:entries="@array/nomes_heuristicas"
+        android:entryValues="@array/valores_nomes_heuristicas"
+        android:key="pref_algoritmo_heuristica"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/titulo_heuristica" />
+
 </PreferenceScreen>

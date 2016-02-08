@@ -158,7 +158,7 @@ public class Graph {
     private int geoHash(GeoPoint point) {
         int x = (int) Math.floor(point.getLatitudeE6() / LAT_STEP);
         int y = (int) Math.floor(point.getLongitudeE6() / LON_STEP);
-        return Math.abs(x * 3 + y * 5);
+        return Math.abs(x * 37 + y * 53);
     }
 
     /**
@@ -174,7 +174,7 @@ public class Graph {
         }
         GeoPoint point = getGeoPointFromID(id);
         updateCache(point, geoHash(point) % cache.length);
-        return getEntry(id);
+        return cache[geoHash(point) % cache.length].get(id);
     }
 
 
@@ -199,6 +199,12 @@ public class Graph {
 
     public Node getNode(Long current) {
         return new Node(current, getEntry(current).point);
+    }
+
+    public Node getNode(Long current, Node reuse) {
+        reuse.id = current;
+        reuse.data = getEntry(current).point;
+        return reuse;
     }
 
 

@@ -19,6 +19,19 @@
         <item>a_star</item>
         <item>dijkstra</item>
     </string-array>
+    <string-array name="nomes_heuristicas">
+        <item>Distância</item>
+        <item>Distância**2</item>
+        <item>Distância**2/Distância Máxima</item>
+    </string-array>
+    <string-array name="valores_nomes_heuristicas">
+        <item>dist</item>
+        <item>dist_sqr</item>
+        <item>dist_sqr_over_max</item>
+    </string-array>
+
+    <string name="pref_title_system_sync_settings">System sync settings</string>
+    <string name="titulo_heuristica">Heurística</string>
 
     <!-- Performance Settings -->
     <string name="pref_header_performance">Performance</string>
@@ -45,7 +58,5 @@
         <item>360</item>
         <item>-1</item>
     </string-array>
-
-    <string name="pref_title_system_sync_settings">System sync settings</string>
 
 </resources>

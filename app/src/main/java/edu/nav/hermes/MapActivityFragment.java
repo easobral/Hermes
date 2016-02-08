@@ -22,6 +22,8 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.io.File;
 
+import edu.nav.hermes.tasks.TileDownloader;
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -59,14 +61,16 @@ public class MapActivityFragment extends Fragment {
 
         final File file = new File(Environment.getExternalStorageDirectory(), "osmdroid/rio_01.zip");
 
-        try {
-            final OfflineTileProvider provider = new OfflineTileProvider(registerReceiver, new File[]{file});
-            mapView.setTileProvider(provider);
-            mapView.setTileSource(tileSource);
+        if (file.exists()) {
+            try {
+                final OfflineTileProvider provider = new OfflineTileProvider(registerReceiver, new File[]{file});
+                mapView.setTileProvider(provider);
+                mapView.setTileSource(tileSource);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(this.getClass().getName(), e.getMessage());
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e(this.getClass().getName(), e.getMessage());
+            }
         }
 
 
@@ -89,6 +93,11 @@ public class MapActivityFragment extends Fragment {
     public void onResume() {
         super.onResume();
         this.mLocationOverlay.enableMyLocation();
+        File file = new File(Environment.getExternalStorageDirectory(), "osmdroid/rio_01.zip");
+        if (!file.exists()) {
+            new TileDownloader(getContext(), this).execute();
+        }
+
     }
 
     /**

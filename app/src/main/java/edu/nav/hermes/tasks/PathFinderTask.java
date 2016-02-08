@@ -23,8 +23,10 @@ import edu.nav.hermes.math.algorithms.LoopListener;
  * Created by eduardo on 02/02/16.
  * The database
  */
-public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, List<IGeoPoint>> {
+public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, Answer> {
 
+    double max_dist = 0;
+    int visited_nodes = 0;
     private ProgressDialog progressDialog;
     private Context context;
     private PathFinderTask.TaskCompletedListener listener;
@@ -48,7 +50,7 @@ public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, Li
         progressDialog = new ProgressDialog(context);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressDialog.setTitle("Procurando Rota");
-        progressDialog.setMessage("Por favor, espere um momento");
+        progressDialog.setMessage("Por favor, aguarde um momento");
         progressDialog.setCancelable(false);
         progressDialog.show();
     }
@@ -59,15 +61,15 @@ public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, Li
      * <p>
      * <p>This method won't be invoked if the task was cancelled.</p>
      *
-     * @param path The result of the operation computed by {@link #doInBackground}.
+     * @param answer The result of the operation computed by {@link #doInBackground}.
      * @see #onPreExecute
      * @see #doInBackground
      * @see #onCancelled(Object)
      */
     @Override
-    protected void onPostExecute(List<IGeoPoint> path) {
+    protected void onPostExecute(Answer answer) {
         progressDialog.dismiss();
-        listener.onTaskCompleted(path);
+        listener.onTaskCompleted(answer.path);
     }
 
 
@@ -100,7 +102,7 @@ public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, Li
      * @see #publishProgress
      */
     @Override
-    protected List<IGeoPoint> doInBackground(PathFinderTask.Params... params) {
+    protected Answer doInBackground(PathFinderTask.Params... params) {
         //TODO
         par = params[0];
         clock.start();
@@ -115,14 +117,41 @@ public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, Li
         Long p1 = graph.getClosestNode(par.start);
         Long p2 = graph.getClosestNode(par.end);
 
+        if (null == p1 || null == p2) {
+            return answer;
+        }
+
+        max_dist = graph.getData(p1).distanceTo(graph.getData(p2));
+        progressDialog.setMax((int) max_dist);
 
         if (algo.equals("a_star")) {
-            AStarAlgorithm aStarAlgorithm = new AStarAlgorithm(graph, p1, p2, new Loop(), new AStarAlgorithm.Heuristic() {
+            AStarAlgorithm.Heuristic heuristc = new AStarAlgorithm.Heuristic() {
                 @Override
                 public double cost(Graph graph, Long start, Long end) {
                     return graph.getData(start).distanceTo(graph.getData(end));
                 }
-            });
+            };
+
+            if (pref.getString("pref_algoritimo_heuristica", "dist").equals("dist_sqr")) {
+                heuristc = new AStarAlgorithm.Heuristic() {
+                    @Override
+                    public double cost(Graph graph, Long start, Long end) {
+                        double dist = graph.getData(start).distanceTo(graph.getData(end));
+                        return dist * dist;
+                    }
+                };
+            } else if (pref.getString("pref_algoritimo_heuristica", "dist").equals("dist_sqr_over_max")) {
+                heuristc = new AStarAlgorithm.Heuristic() {
+                    @Override
+                    public double cost(Graph graph, Long start, Long end) {
+                        double dist = graph.getData(start).distanceTo(graph.getData(end));
+                        return dist * dist / max_dist;
+                    }
+                };
+
+            }
+
+            AStarAlgorithm aStarAlgorithm = new AStarAlgorithm(graph, p1, p2, new Loop(), heuristc);
             answer = aStarAlgorithm.start();
         } else if (algo.equals("dijkstra")) {
             DijkstraAlgorithm dijkstraAlgorithm = new DijkstraAlgorithm(graph, p1, p2, new Loop());
@@ -133,7 +162,7 @@ public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, Li
 
         Log.d(getClass().getSimpleName(), "" + clock.getTime());
 
-        return answer.path;
+        return answer;
     }
 
     public interface TaskCompletedListener {
@@ -163,15 +192,12 @@ public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, Li
 
         @Override
         public void onLoop(Graph.Node node) {
-            i++;
             float cur_distance = node.getData().distanceTo(par.end);
             if (cur_distance < best_distance) {
                 best_distance = cur_distance;
             }
-            if (10 < i) {
-                float total_distance = par.start.distanceTo(par.end);
-                Integer progress = (int) Math.floor((1 - best_distance / total_distance) * 100);
-                publishProgress(progress);
+            if (visited_nodes % 10 == 0) {
+                publishProgress((int) (max_dist - best_distance));
             }
         }
     }

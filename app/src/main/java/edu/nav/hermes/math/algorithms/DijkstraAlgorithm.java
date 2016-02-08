@@ -65,10 +65,11 @@ public class DijkstraAlgorithm {
 
     private Answer execute_algorithm() {
         queue.add(start);
+        Graph.Node reuse_node = new Graph.Node();
 
         while (!queue.isEmpty()) {
             Long current = queue.poll();
-            loop.onLoop(graph.getNode(current));
+            loop.onLoop(graph.getNode(current, reuse_node));
             NodeInfo infoCurrent = info_set.get(current);
             infoCurrent.closed = true;
 
