@@ -15,7 +15,7 @@
 
     <EditTextPreference
         android:defaultValue="1"
-        android:inputType="numberSigned"
+        android:inputType="number|numberSigned"
         android:key="pref_debug_start_lat"
         android:title="@string/pref_debug_start_lat" />
 

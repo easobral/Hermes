@@ -79,8 +79,8 @@ public class TileDownloader extends AsyncTask<Void, Integer, Void> {
      */
     @Override
     protected Void doInBackground(Void... params) {
+        final File file = new File(Environment.getExternalStorageDirectory(), "osmdroid");
         try {
-            final File file = new File(Environment.getExternalStorageDirectory(), "osmdroid");
             if (!file.exists()) {
                 //noinspection ResultOfMethodCallIgnored
                 file.mkdir();
@@ -88,6 +88,9 @@ public class TileDownloader extends AsyncTask<Void, Integer, Void> {
             downloadFile("https://s3.amazonaws.com/tcchermes/rio_01.zip", file.toString());
         } catch (IOException e) {
             e.printStackTrace();
+            if (file.exists()) {
+                file.delete();
+            }
         }
         return null;
     }

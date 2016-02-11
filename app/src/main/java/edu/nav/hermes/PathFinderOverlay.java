@@ -62,13 +62,15 @@ public class PathFinderOverlay extends Overlay {
         paint.setColor(Color.BLUE);
         paint.setStrokeWidth(3.0f);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setAlpha(128);
+        paint.setAlpha(0);
         paint.setStrokeCap(Paint.Cap.ROUND);
 
         Iterator<IGeoPoint> itr = path.iterator();
         second = itr.next();
 
         while (itr.hasNext()) {
+            paint.setColor(Color.BLACK);
+            paint.setStrokeWidth(5.0f);
             first = second;
             second = itr.next();
             projection.toPixels(first, first_p);
@@ -76,6 +78,7 @@ public class PathFinderOverlay extends Overlay {
             canvas.drawLine(first_p.x, first_p.y,
                     second_p.x, second_p.y, paint);
         }
+
 
     }
 
@@ -94,6 +97,22 @@ public class PathFinderOverlay extends Overlay {
         IGeoPoint p = projection.fromPixels((int) e.getX(), (int) e.getY());
         tapState = tapState.onTap(p, mapView);
         return true;
+    }
+
+    public void findPath(GeoPoint start, GeoPoint end, final MapView mapView) {
+        PathFinderTask task = new PathFinderTask(context, new PathFinderTask.TaskCompletedListener() {
+            @Override
+            public void onTaskCompleted(List<IGeoPoint> path) {
+                pathToDraw = path;
+                is_to_draw = true;
+                mapView.invalidate();
+                Log.d("TAG", "Done");
+            }
+        });
+        PathFinderTask.Params params = new PathFinderTask.Params();
+        params.start = start;
+        params.end = end;
+        task.execute(params);
     }
 
 
@@ -119,19 +138,9 @@ public class PathFinderOverlay extends Overlay {
 
         @Override
         public TapState onTap(IGeoPoint point, final MapView mapView) {
-            PathFinderTask task = new PathFinderTask(context, new PathFinderTask.TaskCompletedListener() {
-                @Override
-                public void onTaskCompleted(List<IGeoPoint> path) {
-                    pathToDraw = path;
-                    is_to_draw = true;
-                    mapView.invalidate();
-                    Log.d("TAG", "Done");
-                }
-            });
-            PathFinderTask.Params params = new PathFinderTask.Params();
-            params.start = new GeoPoint(p.getLatitude(), p.getLongitude());
-            params.end = new GeoPoint(point.getLatitude(), point.getLongitude());
-            task.execute(params);
+            GeoPoint start = new GeoPoint(p.getLatitude(), p.getLongitude());
+            GeoPoint end = new GeoPoint(point.getLatitude(), point.getLongitude());
+            findPath(start, end, mapView);
             return new FirstTap();
         }
     }
