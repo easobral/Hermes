@@ -192,6 +192,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // updated to reflect the new value, per the Android Design
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("pref_debug_save_file"));
+            bindPreferenceSummaryToValue(findPreference("pref_debug_start_lat"));
+            bindPreferenceSummaryToValue(findPreference("pref_debug_start_lon"));
+            bindPreferenceSummaryToValue(findPreference("pref_debug_end_lat"));
+            bindPreferenceSummaryToValue(findPreference("pref_debug_end_lon"));
         }
 
     }

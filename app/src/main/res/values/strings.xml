@@ -40,6 +40,11 @@
 
     <!-- Example settings for Data & Sync -->
     <string name="pref_header_debug">Debug</string>
+    <string name="action_execute_with_saved_points">Find Path</string>
+    <string name="pref_debug_start_lat">Start Latitude</string>
+    <string name="pref_debug_start_lon">Start Longitude</string>
+    <string name="pref_debug_end_lat">End Latitude</string>
+    <string name="pref_debug_end_lon">End Longitude</string>
 
 
 </resources>

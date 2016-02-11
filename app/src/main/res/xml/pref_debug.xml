@@ -13,6 +13,30 @@
         android:key="pref_debug_save_file"
         android:title="Result Save File" />
 
+    <EditTextPreference
+        android:defaultValue="1"
+        android:inputType="numberSigned"
+        android:key="pref_debug_start_lat"
+        android:title="@string/pref_debug_start_lat" />
+
+    <EditTextPreference
+        android:defaultValue="1"
+        android:inputType="number|numberSigned"
+        android:key="pref_debug_start_lon"
+        android:title="@string/pref_debug_start_lon" />
+
+    <EditTextPreference
+        android:defaultValue="1"
+        android:inputType="number|numberSigned"
+        android:key="pref_debug_end_lat"
+        android:title="@string/pref_debug_end_lat" />
+
+    <EditTextPreference
+        android:defaultValue="1"
+        android:inputType="number|numberSigned"
+        android:key="pref_debug_end_lon"
+        android:title="@string/pref_debug_end_lon" />
+
     <!-- This preference simply launches an intent when selected. Use this UI sparingly, per
          design guidelines. -->
 
