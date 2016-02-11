@@ -1,18 +1,27 @@
 package edu.nav.hermes.tasks;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.util.GeoPoint;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.nav.hermes.R;
 import edu.nav.hermes.math.algorithms.AStarAlgorithm;
 import edu.nav.hermes.math.algorithms.Answer;
 import edu.nav.hermes.math.algorithms.DijkstraAlgorithm;
@@ -69,9 +78,36 @@ public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, An
     @Override
     protected void onPostExecute(Answer answer) {
         progressDialog.dismiss();
+        SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(context);
+        if (preference.getBoolean("pref_debug_show_result", true)) {
+            showResults(answer);
+        }
         listener.onTaskCompleted(answer.path);
     }
 
+    private void showResults(Answer answer) {
+        Activity activity = (Activity) context;
+        LayoutInflater inflater = activity.getLayoutInflater();
+        View view = inflater.inflate(R.layout.result, null);
+
+        TextView textView = (TextView) view.findViewById(R.id.distance_course);
+        textView.setText("" + (answer.cost / 1E3) + " km");
+
+        textView = (TextView) view.findViewById(R.id.distance_points);
+        textView.setText("" + (max_dist / 1E3) + " km");
+
+        textView = (TextView) view.findViewById(R.id.tempo_gasto);
+        textView.setText("" + answer.time + " s");
+
+        textView = (TextView) view.findViewById(R.id.numero_nos);
+        textView.setText("" + answer.visitedNodes + " nodes");
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+        builder.setView(view);
+
+        builder.create().show();
+    }
 
     /**
      * Runs on the UI thread after {@link #publishProgress} is invoked.
@@ -158,11 +194,52 @@ public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, An
             answer = dijkstraAlgorithm.start();
         }
 
+        answer.time = clock.getTime() / 1E3;
+        answer.visitedNodes = visited_nodes;
 
+        path.add(par.start);
+        for (int i = answer.path.size() - 1; i >= 0; i--) {
+            path.add(answer.path.get(i));
+        }
+        path.add(par.end);
+        answer.path = path;
 
-        Log.d(getClass().getSimpleName(), "" + clock.getTime());
+        save_run_data(answer);
 
         return answer;
+    }
+
+    private void save_run_data(Answer answer) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        String fname = pref.getString("pref_debug_save_file", "result.txt");
+        File file = new File(Environment.getExternalStorageDirectory(), "hermes");
+        if (!file.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            file.mkdirs();
+        }
+
+        file = new File(file.toString(), fname);
+
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(file, true);
+            StringBuilder builder = new StringBuilder();
+
+            builder.append(par.start).append(';')
+                    .append(par.end).append(';')
+                    .append(answer.cost).append(';')
+                    .append(answer.time).append(';')
+                    .append(answer.visitedNodes).append(';')
+                    .append(pref.getString("pref_algoritmo_algoritmo", "")).append(';')
+                    .append(pref.getString("pref_algoritmo_heuristica", "")).append(';')
+                    .append(pref.getString("pref_performance_cache_size", "")).append("\n");
+
+            fileOutputStream.write(builder.toString().getBytes());
+            fileOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     public interface TaskCompletedListener {
@@ -187,11 +264,11 @@ public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, An
     }
 
     private class Loop implements LoopListener {
-        int i = 0;
         float best_distance = Float.POSITIVE_INFINITY;
 
         @Override
         public void onLoop(Graph.Node node) {
+            visited_nodes++;
             float cur_distance = node.getData().distanceTo(par.end);
             if (cur_distance < best_distance) {
                 best_distance = cur_distance;

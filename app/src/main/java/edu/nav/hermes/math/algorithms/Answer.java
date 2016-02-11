@@ -11,5 +11,7 @@ import java.util.List;
  */
 public class Answer {
     public double cost = 0;
+    public double time = 0;
+    public int visitedNodes = 0;
     public List<IGeoPoint> path = new ArrayList<>();
 }

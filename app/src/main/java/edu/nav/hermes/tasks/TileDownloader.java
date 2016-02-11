@@ -50,7 +50,7 @@ public class TileDownloader extends AsyncTask<Void, Integer, Void> {
 
     @Override
     protected void onProgressUpdate(Integer... values) {
-        if (values != null) {
+        if (null != values) {
             progressDialog.setMax(values[0]);
         }
         progressDialog.incrementProgressBy(BUFFER_SIZE);
@@ -59,6 +59,7 @@ public class TileDownloader extends AsyncTask<Void, Integer, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         progressDialog.dismiss();
+        mapActivityFragment.updateMapView();
     }
 
 
@@ -136,7 +137,8 @@ public class TileDownloader extends AsyncTask<Void, Integer, Void> {
             byte[] buffer = new byte[BUFFER_SIZE];
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);
-                publishProgress();
+                //noinspection NullArgumentToVariableArgMethod
+                publishProgress(null);
             }
 
             outputStream.close();

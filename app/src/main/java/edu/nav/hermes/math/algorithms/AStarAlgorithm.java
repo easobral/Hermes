@@ -60,6 +60,7 @@ public class AStarAlgorithm {
             val = end_info.father;
             end_info = info_set.get(val);
         }
+
         return answer;
     }
 

@@ -45,6 +45,14 @@ public class MapActivityFragment extends Fragment {
         return rootView;
     }
 
+    public void updateMapView() {
+        View rootView = getView();
+        if (null == rootView) return;
+        MapView mapView = (MapView) rootView.findViewById(R.id.map);
+        setupMapView(mapView);
+        mapView.invalidate();
+    }
+
     private void setupMapView(MapView mapView) {
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
@@ -110,4 +118,5 @@ public class MapActivityFragment extends Fragment {
         super.onPause();
         this.mLocationOverlay.disableMyLocation();
     }
+
 }
