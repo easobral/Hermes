@@ -15,7 +15,7 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/textView5"
+            android:id="@+id/credits"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="New Text" />

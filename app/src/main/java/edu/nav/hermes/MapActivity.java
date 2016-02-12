@@ -37,6 +37,11 @@ public class MapActivity extends AppCompatActivity {
             startActivity(intent);
             return true;
         }
+        if (id == R.id.action_credits) {
+            Intent intent = new Intent(this, CreditsActivity.class);
+            startActivity(intent);
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
