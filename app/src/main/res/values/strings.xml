@@ -45,6 +45,7 @@
     <string name="pref_debug_start_lon">Start Longitude</string>
     <string name="pref_debug_end_lat">End Latitude</string>
     <string name="pref_debug_end_lon">End Longitude</string>
+    <string name="action_credits">Credits</string>
 
 
 </resources>

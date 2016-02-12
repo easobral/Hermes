@@ -14,5 +14,10 @@
         android:title="@string/action_execute_with_saved_points"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_credits"
+        android:orderInCategory="102"
+        android:title="@string/action_credits"
+        app:showAsAction="never" />
 
 </menu>
