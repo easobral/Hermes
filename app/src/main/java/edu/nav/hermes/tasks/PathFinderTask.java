@@ -224,13 +224,18 @@ public class PathFinderTask extends AsyncTask<PathFinderTask.Params, Integer, An
             FileOutputStream fileOutputStream = new FileOutputStream(file, true);
             StringBuilder builder = new StringBuilder();
 
+            String algo = pref.getString("pref_algoritmo_algoritmo", "");
+            if (algo.equals("a_star")) {
+                algo = algo + "_" + pref.getString("pref_algoritmo_heuristica", "");
+            }
+
             builder.append(par.start).append(';')
                     .append(par.end).append(';')
+                    .append(par.start.distanceTo(par.end)).append(';')
                     .append(answer.cost).append(';')
                     .append(answer.time).append(';')
                     .append(answer.visitedNodes).append(';')
-                    .append(pref.getString("pref_algoritmo_algoritmo", "")).append(';')
-                    .append(pref.getString("pref_algoritmo_heuristica", "")).append(';')
+                    .append(algo).append(';')
                     .append(pref.getString("pref_performance_cache_size", "")).append("\n");
 
             fileOutputStream.write(builder.toString().getBytes());
